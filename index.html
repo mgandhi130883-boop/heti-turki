@@ -1041,7 +1041,6 @@ footer strong { color: var(--gold-lt); }
   <a href="#lokasi">Lokasi</a>
   <a href="#keuangan">Keuangan</a>
   <a href="#dokumen">Dokumen</a>
-  <a href="#checklist">Checklist</a>
 </nav>
 
 <!-- ═══════════════════════════════════════════════════ HERO -->
@@ -1778,28 +1777,20 @@ footer strong { color: var(--gold-lt); }
 
     <!-- Doc cards (built by JS) -->
     <div class="indok-grid" id="dok-indok-grid"></div>
+
+    <!-- ── CHECKLIST PERJALANAN (per individu) ── -->
+    <div id="dok-cl-wrap" style="display:none;margin-top:36px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <div style="width:3px;height:28px;background:var(--gold);border-radius:2px;flex-shrink:0;"></div>
+        <h3 style="font-family:var(--ff-display);font-size:18px;margin:0;">Checklist Persiapan Perjalanan</h3>
+      </div>
+      <div class="cl-summary">
+        <div class="cl-total" id="cl-pct">0%</div>
+        <div class="cl-total-label" id="cl-lbl">dari 0 item telah dicentang</div>
+      </div>
+      <div style="margin-top:24px;" id="checklist-container"></div>
+    </div>
   </div>
-</section>
-
-<hr class="divider-line">
-
-<!-- ═══════════════════════════════════════════════════ 8. CHECKLIST -->
-<section id="checklist" class="section">
-  <div class="sec-header">
-    <div class="sec-num">08</div>
-    <h2 class="sec-title"><small>Persiapan</small>Checklist Perjalanan</h2>
-  </div>
-
-  <!-- Person selector for checklist -->
-  <div id="cl-person-selector" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"></div>
-  <div id="cl-person-label" style="font-size:13px;color:var(--clr-muted);margin-bottom:16px;font-style:italic;"></div>
-
-  <div class="cl-summary">
-    <div class="cl-total" id="cl-pct">0%</div>
-    <div class="cl-total-label" id="cl-lbl">dari 0 item telah dicentang</div>
-  </div>
-
-  <div style="margin-top: 28px;" id="checklist-container"></div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════ FOOTER -->
@@ -1950,11 +1941,7 @@ function buildChecklist(personIdx) {
   clCurrentPerson = personIdx;
   loadClState(personIdx);
 
-  // Update person label
-  const lbl = document.getElementById('cl-person-label');
-  if (lbl) lbl.textContent = 'Checklist untuk: ' + PESERTA[personIdx].name;
-
-  // Sync cl-person-btn active state
+  // Sync cl-person-btn active state (if any)
   document.querySelectorAll('.cl-person-btn').forEach((b,i) => b.classList.toggle('active', i===personIdx));
 
   const c = document.getElementById('checklist-container');
@@ -2060,7 +2047,9 @@ function selectPerson(idx, btn) {
   currentPerson = idx;
   document.querySelectorAll('.person-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   buildDokGrid(idx);
-  // Sync checklist to selected person
+  // Show & build checklist for selected person
+  const wrap = document.getElementById('dok-cl-wrap');
+  if (wrap) wrap.style.display = '';
   clCurrentPerson = idx;
   buildChecklist(idx);
 }
@@ -2095,9 +2084,7 @@ function scrollSpy() {
 buildPeserta();
 buildDokPersonSelector();
 buildDokGrid(0);
-loadClState(0);
-buildClPersonSelector();
-buildChecklist(0);
+// Checklist only shown after a person is selected (dok-cl-wrap stays hidden until then)
 window.addEventListener('scroll', scrollSpy, { passive: true });
 scrollSpy();
 </script>
