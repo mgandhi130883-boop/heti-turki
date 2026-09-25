@@ -113,46 +113,183 @@ body {
   position: sticky;
   top: env(safe-area-inset-top, 0px);
   z-index: 200;
-  background: var(--navy);
+  background: rgba(8,15,35,0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(212,175,55,0.18);
   display: flex;
-  align-items: stretch;
-  overflow-x: auto;
-  scrollbar-width: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 54px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.35);
 }
-.site-nav::-webkit-scrollbar { display: none; }
 .nav-brand {
   font-family: var(--ff-display);
-  font-size: 14px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
+  font-size: 15px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.92);
   letter-spacing: 0.04em;
-  padding: 0 18px;
   display: flex;
   align-items: center;
   gap: 8px;
-  border-right: 1px solid rgba(255,255,255,0.12);
-  white-space: nowrap;
   flex-shrink: 0;
 }
 .nav-brand span { color: var(--gold-lt); }
-.site-nav a {
-  color: rgba(255,255,255,0.6);
+.nav-current-section {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(212,175,55,0.6);
+  background: rgba(212,175,55,0.08);
+  border: 1px solid rgba(212,175,55,0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  transition: opacity 0.3s;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Hamburger button */
+.nav-toggle {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(212,175,55,0.25);
+  background: rgba(212,175,55,0.07);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+.nav-toggle:hover { background: rgba(212,175,55,0.15); border-color: rgba(212,175,55,0.5); }
+.nav-toggle .hb { display:block; width:18px; height:2px; background:var(--gold-lt); border-radius:2px; transition:transform 0.32s cubic-bezier(.4,0,.2,1), opacity 0.25s, width 0.25s; }
+.nav-toggle.open .hb:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open .hb:nth-child(2) { opacity: 0; width: 0; }
+.nav-toggle.open .hb:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Overlay */
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,5,20,0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.nav-overlay.open { opacity: 1; pointer-events: all; }
+
+/* Drawer */
+.nav-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: min(296px, 85vw);
+  z-index: 400;
+  transform: translateX(-100%);
+  transition: transform 0.36s cubic-bezier(0.4,0,0.2,1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  /* layered dark background */
+  background: linear-gradient(160deg, #0b1730 0%, #060d20 100%);
+  border-right: 1px solid rgba(212,175,55,0.18);
+  box-shadow: 8px 0 40px rgba(0,0,0,0.5);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.nav-drawer.open { transform: translateX(0); }
+
+/* Drawer header */
+.drawer-head {
+  padding: 20px 22px 18px;
+  border-bottom: 1px solid rgba(212,175,55,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.drawer-logo {
+  font-family: var(--ff-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+.drawer-logo em { color: var(--gold-lt); font-style: normal; }
+.drawer-logo small { display:block; font-size:10px; font-weight:500; color:rgba(255,255,255,0.38); letter-spacing:0.12em; text-transform:uppercase; margin-top:2px; }
+.drawer-close {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display:flex; align-items:center; justify-content:center;
+  transition: all 0.2s;
+}
+.drawer-close:hover { background:rgba(255,255,255,0.1); color:#fff; }
+
+/* Section label in drawer */
+.drawer-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(212,175,55,0.45);
+  padding: 18px 22px 6px;
+}
+
+/* Drawer nav links */
+.drawer-links { padding: 8px 0 16px; flex:1; }
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px;
   text-decoration: none;
-  font-size: 11px;
+  color: rgba(255,255,255,0.6);
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  padding: 14px 12px;
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
-  display: flex;
-  align-items: center;
+  border-left: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
 }
-.site-nav a:hover,
-.site-nav a.is-active {
+.drawer-link:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.04); }
+.drawer-link.is-active {
   color: var(--gold-lt);
-  border-bottom-color: var(--gold);
+  background: rgba(212,175,55,0.07);
+  border-left-color: var(--gold);
+}
+.dl-num {
+  font-family: var(--ff-display);
+  font-size: 11px;
+  color: rgba(212,175,55,0.35);
+  min-width: 22px;
+  font-weight: 700;
+}
+.drawer-link.is-active .dl-num { color: var(--gold); }
+.dl-icon { font-size: 17px; width: 22px; text-align:center; }
+.dl-label { flex:1; }
+
+/* Drawer footer */
+.drawer-foot {
+  padding: 14px 22px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  font-size: 10px;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.05em;
 }
 
 /* ── HERO ── */
@@ -1034,14 +1171,39 @@ footer strong { color: var(--gold-lt); }
 <!-- ═══════════════════════════════════════════════════ NAV -->
 <nav class="site-nav" id="site-nav">
   <div class="nav-brand">🇹🇷 <span>HETI</span> Türkiye</div>
-  <a href="#timeline">Timeline</a>
-  <a href="#penerbangan">Penerbangan</a>
-  <a href="#peserta">Peserta</a>
-  <a href="#agenda">Agenda</a>
-  <a href="#lokasi">Lokasi</a>
-  <a href="#keuangan">Keuangan</a>
-  <a href="#dokumen">Dokumen</a>
+  <span class="nav-current-section" id="nav-cur-section">Timeline</span>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Menu" onclick="toggleDrawer()">
+    <span class="hb"></span><span class="hb"></span><span class="hb"></span>
+  </button>
 </nav>
+
+<!-- Overlay -->
+<div class="nav-overlay" id="nav-overlay" onclick="closeDrawer()"></div>
+
+<!-- Side Drawer -->
+<div class="nav-drawer" id="nav-drawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">
+      <em>HETI</em> Türkiye
+      <small>Booklet Perjalanan 2026</small>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">×</button>
+  </div>
+
+  <div class="drawer-section-label">Navigasi</div>
+
+  <div class="drawer-links" id="drawer-links">
+    <a href="#timeline"    class="drawer-link is-active" onclick="closeDrawer()"><span class="dl-num">01</span><span class="dl-icon">📅</span><span class="dl-label">Timeline</span></a>
+    <a href="#penerbangan" class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">02</span><span class="dl-icon">✈️</span><span class="dl-label">Penerbangan</span></a>
+    <a href="#peserta"     class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">03</span><span class="dl-icon">👥</span><span class="dl-label">Peserta</span></a>
+    <a href="#agenda"      class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">04</span><span class="dl-icon">📋</span><span class="dl-label">Agenda</span></a>
+    <a href="#lokasi"      class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">05</span><span class="dl-icon">📍</span><span class="dl-label">Lokasi</span></a>
+    <a href="#keuangan"    class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">06</span><span class="dl-icon">💰</span><span class="dl-label">Keuangan</span></a>
+    <a href="#dokumen"     class="drawer-link"            onclick="closeDrawer()"><span class="dl-num">07</span><span class="dl-icon">📁</span><span class="dl-label">Dokumen & Checklist</span></a>
+  </div>
+
+  <div class="drawer-foot">Istanbul Aydin University · 12–16 Okt 2026</div>
+</div>
 
 <!-- ═══════════════════════════════════════════════════ HERO -->
 <header class="hero">
@@ -1801,6 +1963,7 @@ footer strong { color: var(--gold-lt); }
 </footer>
 
 <!-- ═══════════════════════════════════════════════════ SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* ── DATA ── */
 const PESERTA = [
@@ -1887,19 +2050,82 @@ function buildPeserta() {
   }).join('');
 }
 
+/* ── SUPABASE SHARED STATE ── */
+const SB_URL = 'https://ozelwlzlwcthloyuhzjp.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96ZWx3bHpsd2N0aGxveXVoempwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg4NTgxMDgsImV4cCI6MjEwNDQzNDEwOH0.NtRvSFAfRkmywoc3ByYzuoC5mPncA6fMYnWCw8KP6PI';
+let sb = null;
+
+// allClStates: { "0": {"cl-0-0": true, ...}, "1": {...}, ... }
+let allClStates = {};
+
+async function sbInit() {
+  try {
+    sb = supabase.createClient(SB_URL, SB_KEY);
+    const { data, error } = await sb.from('heti_shared_state').select('key, value');
+    if (data) {
+      const cl  = data.find(r => r.key === 'checklist');
+      const dok = data.find(r => r.key === 'dokumen');
+      if (cl)  allClStates = cl.value  || {};
+      if (dok) { dokState = dok.value || {}; }
+    }
+    // Real-time: sync perubahan dari orang lain
+    sb.channel('heti-live')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'heti_shared_state' }, ({ new: row }) => {
+        if (row.key === 'checklist') {
+          allClStates = row.value || {};
+          clState = allClStates[String(clCurrentPerson)] || {};
+          // Re-render checklist jika wrap visible
+          const wrap = document.getElementById('dok-cl-wrap');
+          if (wrap && wrap.style.display !== 'none') rebuildChecklistUI();
+        }
+        if (row.key === 'dokumen') {
+          dokState = row.value || {};
+          buildDokGrid(currentPerson);
+          updateDokProgress(currentPerson);
+        }
+      })
+      .subscribe();
+  } catch(e) { console.warn('Supabase tidak terhubung, pakai localStorage', e); }
+}
+
+function sbSaveChecklist() {
+  allClStates[String(clCurrentPerson)] = clState;
+  try { localStorage.setItem('heti-cl-v3-' + clCurrentPerson, JSON.stringify(clState)); } catch(e) {}
+  if (sb) sb.from('heti_shared_state').update({ value: allClStates, updated_at: new Date().toISOString() }).eq('key','checklist').then();
+}
+
+function sbSaveDokumen() {
+  try { localStorage.setItem('heti-dok-v2', JSON.stringify(dokState)); } catch(e) {}
+  if (sb) sb.from('heti_shared_state').update({ value: dokState, updated_at: new Date().toISOString() }).eq('key','dokumen').then();
+}
+
 /* ── BUILD CHECKLIST (per-person) ── */
-const LS_KEY_PREFIX = 'heti-cl-v3-';
 let clState = {};
 let clCurrentPerson = 0;
 
-function getClKey(personIdx) { return LS_KEY_PREFIX + personIdx; }
-
 function loadClState(personIdx) {
-  try { clState = JSON.parse(localStorage.getItem(getClKey(personIdx))) || {}; } catch(e) { clState = {}; }
+  clState = allClStates[String(personIdx)] || {};
+  // Fallback localStorage
+  if (!Object.keys(clState).length) {
+    try { clState = JSON.parse(localStorage.getItem('heti-cl-v3-' + personIdx)) || {}; } catch(e) { clState = {}; }
+  }
 }
 
-function saveState() {
-  try { localStorage.setItem(getClKey(clCurrentPerson), JSON.stringify(clState)); } catch(e) {}
+function saveState() { sbSaveChecklist(); }
+
+// Re-render checklist UI dari clState yang sudah ada di memori (dipanggil saat real-time update)
+function rebuildChecklistUI() {
+  const c = document.getElementById('checklist-container');
+  if (!c) return;
+  c.querySelectorAll('.cl-item').forEach(el => {
+    const cb = el.querySelector('input');
+    if (!cb) return;
+    const id = cb.id;
+    const checked = clState[id] || false;
+    cb.checked = checked;
+    el.classList.toggle('done', checked);
+  });
+  updateSummary();
 }
 
 function updateSummary() {
@@ -1993,14 +2219,11 @@ const DOK_INDIVIDU = [
   { key:'zurich',   icon:'🛡️', name:'Asuransi Zurich',        sub:'Kartu & polis asuransi perjalanan aktif', url:'https://drive.google.com/drive/folders/1iuaqk9FCOmKtHoekk5vS0K4SrKcX5K01?usp=drive_link' },
 ];
 
-const LS_DOK = 'heti-dok-v2';
 let dokState = {};
-try { dokState = JSON.parse(localStorage.getItem(LS_DOK)) || {}; } catch(e) {}
+try { dokState = JSON.parse(localStorage.getItem('heti-dok-v2')) || {}; } catch(e) {}
 let currentPerson = 0;
 
-function saveDokState() {
-  try { localStorage.setItem(LS_DOK, JSON.stringify(dokState)); } catch(e) {}
-}
+function saveDokState() { sbSaveDokumen(); }
 
 function buildDokPersonSelector() {
   const sel = document.getElementById('dok-person-selector');
@@ -2070,21 +2293,46 @@ function switchDay(n, btn) {
   document.querySelectorAll('.day-tab').forEach((b,i) => b.classList.toggle('active', i===n));
 }
 
+/* ── DRAWER TOGGLE ── */
+function toggleDrawer() {
+  const open = document.getElementById('nav-drawer').classList.toggle('open');
+  document.getElementById('nav-overlay').classList.toggle('open', open);
+  document.getElementById('nav-toggle').classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function closeDrawer() {
+  document.getElementById('nav-drawer').classList.remove('open');
+  document.getElementById('nav-overlay').classList.remove('open');
+  document.getElementById('nav-toggle').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
 /* ── SCROLL SPY ── */
 function scrollSpy() {
-  const links = document.querySelectorAll('.site-nav a[href^="#"]');
+  const links = document.querySelectorAll('.drawer-link[href^="#"]');
   const sections = Array.from(links).map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
   const active = sections.reduce((acc, s) => {
-    return s.getBoundingClientRect().top <= 80 ? s : acc;
+    return s.getBoundingClientRect().top <= 90 ? s : acc;
   }, sections[0]);
   links.forEach(a => a.classList.toggle('is-active', active && a.getAttribute('href') === '#' + active.id));
+  // Update nav bar label
+  const curLbl = document.getElementById('nav-cur-section');
+  if (curLbl && active) {
+    const activeLink = document.querySelector('.drawer-link[href="#' + active.id + '"] .dl-label');
+    if (activeLink) curLbl.textContent = activeLink.textContent;
+  }
 }
 
 /* ── INIT ── */
 buildPeserta();
 buildDokPersonSelector();
-buildDokGrid(0);
-// Checklist only shown after a person is selected (dok-cl-wrap stays hidden until then)
+// Load Supabase dulu (shared state), lalu build UI
+sbInit().then(() => {
+  buildDokGrid(0);
+}).catch(() => {
+  buildDokGrid(0);
+});
 window.addEventListener('scroll', scrollSpy, { passive: true });
 scrollSpy();
 </script>
