@@ -1790,6 +1790,10 @@ footer strong { color: var(--gold-lt); }
     <h2 class="sec-title"><small>Persiapan</small>Checklist Perjalanan</h2>
   </div>
 
+  <!-- Person selector for checklist -->
+  <div id="cl-person-selector" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;"></div>
+  <div id="cl-person-label" style="font-size:13px;color:var(--clr-muted);margin-bottom:16px;font-style:italic;"></div>
+
   <div class="cl-summary">
     <div class="cl-total" id="cl-pct">0%</div>
     <div class="cl-total-label" id="cl-lbl">dari 0 item telah dicentang</div>
@@ -1892,13 +1896,19 @@ function buildPeserta() {
   }).join('');
 }
 
-/* ── BUILD CHECKLIST ── */
-const LS_KEY = 'heti-cl-v2';
+/* ── BUILD CHECKLIST (per-person) ── */
+const LS_KEY_PREFIX = 'heti-cl-v3-';
 let clState = {};
-try { clState = JSON.parse(localStorage.getItem(LS_KEY)) || {}; } catch(e) {}
+let clCurrentPerson = 0;
+
+function getClKey(personIdx) { return LS_KEY_PREFIX + personIdx; }
+
+function loadClState(personIdx) {
+  try { clState = JSON.parse(localStorage.getItem(getClKey(personIdx))) || {}; } catch(e) { clState = {}; }
+}
 
 function saveState() {
-  try { localStorage.setItem(LS_KEY, JSON.stringify(clState)); } catch(e) {}
+  try { localStorage.setItem(getClKey(clCurrentPerson), JSON.stringify(clState)); } catch(e) {}
 }
 
 function updateSummary() {
@@ -1917,7 +1927,36 @@ function updateSummary() {
   });
 }
 
-function buildChecklist() {
+function buildClPersonSelector() {
+  const sel = document.getElementById('cl-person-selector');
+  if (!sel) return;
+  sel.innerHTML = PESERTA.map((p, i) => {
+    const initials = p.name.split(' ').slice(0,2).map(w=>w[0]).join('');
+    return `<button class="person-btn cl-person-btn${i===0?' active':''}" onclick="selectClPerson(${i},this)">
+      <div class="p-ava">${initials}</div>
+      <span class="p-name">${p.nick}</span>
+    </button>`;
+  }).join('');
+}
+
+function selectClPerson(idx, btn) {
+  clCurrentPerson = idx;
+  document.querySelectorAll('.cl-person-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+  buildChecklist(idx);
+}
+
+function buildChecklist(personIdx) {
+  if (personIdx === undefined) personIdx = clCurrentPerson;
+  clCurrentPerson = personIdx;
+  loadClState(personIdx);
+
+  // Update person label
+  const lbl = document.getElementById('cl-person-label');
+  if (lbl) lbl.textContent = 'Checklist untuk: ' + PESERTA[personIdx].name;
+
+  // Sync cl-person-btn active state
+  document.querySelectorAll('.cl-person-btn').forEach((b,i) => b.classList.toggle('active', i===personIdx));
+
   const c = document.getElementById('checklist-container');
   c.innerHTML = CHECKLIST.map((grp, gi) => {
     const items = grp.items.map((txt, ii) => {
@@ -2021,6 +2060,9 @@ function selectPerson(idx, btn) {
   currentPerson = idx;
   document.querySelectorAll('.person-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
   buildDokGrid(idx);
+  // Sync checklist to selected person
+  clCurrentPerson = idx;
+  buildChecklist(idx);
 }
 
 function toggleDok(personIdx, key, cb) {
@@ -2053,7 +2095,9 @@ function scrollSpy() {
 buildPeserta();
 buildDokPersonSelector();
 buildDokGrid(0);
-buildChecklist();
+loadClState(0);
+buildClPersonSelector();
+buildChecklist(0);
 window.addEventListener('scroll', scrollSpy, { passive: true });
 scrollSpy();
 </script>
